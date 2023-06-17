@@ -321,6 +321,7 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
+        return (self.startingPosition, [], 0)
         util.raiseNotDefined()
 
     def isGoalState(self, state: Any):
@@ -328,6 +329,15 @@ class CornersProblem(search.SearchProblem):
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
+        node = state[0]
+        visitedCorners = state[1]
+
+        if node in self.corners:
+            if node not in visitedCorners:
+                visitedCorners.append(node)
+            return len(visitedCorners) == 4
+        return False
+
         util.raiseNotDefined()
 
     def getSuccessors(self, state: Any):
@@ -351,6 +361,20 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
+            x, y = state[0]
+            visitedCorners = state[1]
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            hitsWall = self.walls[nextx][nexty]
+            if not hitsWall:
+                nextState = (nextx, nexty)
+                successVisitedCorners = list(visitedCorners)
+                # if nextState in self.corners:
+                #     cornerstate = nextState
+                #     if cornerstate not in successVisitedCorners:
+                #         successVisitedCorners.append(cornerstate)
+                successors.append((
+                    (nextState, successVisitedCorners), action, 1))
 
         self._expanded += 1  # DO NOT CHANGE
         return successors
@@ -389,6 +413,11 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     walls = problem.walls
 
     "*** YOUR CODE HERE ***"
+    xy1 = state[0]
+    corners_pos = state[1]
+    minManhattanHeuristic = 0
+    for corner in corners_pos:
+        manhattanHeuristic(state[0], corner)
     return 0  # Default to trivial solution
 
 

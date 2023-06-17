@@ -112,12 +112,12 @@ def depthFirstSearch(problem: SearchProblem):
             visited.append(state)
             # visit child nodes
             successors = problem.getSuccessors(state)
-            print("\n")
+            # print("\n")
             for child in successors:
                 # store state, action and cost = 1
                 child_state = child[0]
                 child_action = child[1]
-                print(child_action)
+                # print(child_action)
                 if child_state not in visited:
                     # add child nodes
                     child_action = actions + [child_action]
@@ -160,7 +160,7 @@ def breadthFirstSearch(problem: SearchProblem):
 
 
 def uniformCostSearch(problem: SearchProblem):
-    """Search the node of least total cost first."""
+    # """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
     start = problem.getStartState()
     visited = []
