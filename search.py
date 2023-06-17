@@ -89,16 +89,16 @@ def depthFirstSearch(problem: SearchProblem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    # print("Start:", problem.getStartState())
-    # print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    # print("Start's successors:", problem.getSuccessors(problem.getStartState()))
+    print("Start:", problem.getStartState())
+    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     # create fringe to store nodes
     fringe = util.Stack()
     # track visited nodes
     visited = []
     # push initial state to fringe
     fringe.push((problem.getStartState(), [], 1))
-
+    
     while not fringe.isEmpty():
         node = fringe.pop()
         state = node[0]
@@ -173,8 +173,10 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # util.raiseNotDefined()
+   
 
+    
 
 # Abbreviations
 bfs = breadthFirstSearch
