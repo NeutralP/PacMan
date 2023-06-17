@@ -438,6 +438,21 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
         manhattanHeuristic(state[0], corner)
     return 0  # Default to trivial solution
 
+    node = state[0]
+    visitedCorners = state[1]
+    cornersToVisit = []
+    for corner in corners:
+        if corner not in visitedCorners:
+            cornersToVisit.append(corner)
+
+    if len(cornersToVisit) == 0:
+        return 0
+
+    manhattan = []
+    for n in cornersToVisit:
+        manhattan.append(util.manhattanDistance(n, node))
+
+    return min(manhattan)
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -579,6 +594,35 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
 
     return distance1 + foodleft
 
+    closepoint = foodlist[0]
+    close_cost = util.manhattanDistance(position, closepoint)
+    return 0
+    """
+    I calculate the closest dot with manhattan distance.
+    After that I take the true distance of this food
+    using the mazeDistance function.
+    Then I calculate an extra cost to add to the heuristic.
+    I add 1 extra cost to the heuristic if the food that is left
+    is not in the same line or column with pacman position and the
+    closest food position.
+    I don't add extra cost for those because I assume that they
+    are goinng to be eaten sooner than the others. 
+    """
+    for point in foodlist[1:]:
+        cost = util.manhattanDistance(position, point)
+        if cost < close_cost:
+            close_cost = cost
+            closepoint = point
+    
+    distance1 = mazeDistance(closepoint, position, problem.startingGameState)
+    foodleft = 0
+    for (x,y) in foodlist:
+        if x != position[0] and x != closepoint[0]:
+            foodleft += 1 
+        elif y != position[1] and y != closepoint[1]:
+            foodleft += 1
+
+    return distance1 + foodleft
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -612,9 +656,8 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
-
-
+        return search.breadthFirstSearch(problem)
+       
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
     A search problem for finding a path to any food.
@@ -649,6 +692,7 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x, y = state
 
         "*** YOUR CODE HERE ***"
+        return state in self.food.asList()
         util.raiseNotDefined()
 
 
