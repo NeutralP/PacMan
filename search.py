@@ -89,9 +89,10 @@ def depthFirstSearch(problem: SearchProblem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
+    # print("Start:", problem.getStartState())
+    # print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    # print("Start's successors:", problem.getSuccessors(problem.getStartState()))
+
     # create fringe to store nodes
     fringe = util.Stack()
     # track visited nodes
@@ -111,15 +112,17 @@ def depthFirstSearch(problem: SearchProblem):
             visited.append(state)
             # visit child nodes
             successors = problem.getSuccessors(state)
+            print("\n")
             for child in successors:
                 # store state, action and cost = 1
                 child_state = child[0]
                 child_action = child[1]
+                print(child_action)
                 if child_state not in visited:
                     # add child nodes
                     child_action = actions + [child_action]
                     fringe.push((child_state, child_action, 1))
-    # util.raiseNotDefined()
+    util.raiseNotDefined()
 
 
 def breadthFirstSearch(problem: SearchProblem):
@@ -136,6 +139,7 @@ def breadthFirstSearch(problem: SearchProblem):
         node = fringe.pop()
         state = node[0]
         actions = node[1]
+        # print(actions)
         # visited node
         # goal check
         if problem.isGoalState(state):
@@ -152,17 +156,43 @@ def breadthFirstSearch(problem: SearchProblem):
                     # add child nodes
                     child_action = actions + [child_action]
                     fringe.push((child_state, child_action, 1))
-    # util.raiseNotDefined()
+    util.raiseNotDefined()
 
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
+    start = problem.getStartState()
+    visited = []
+    fringe = util.PriorityQueue()
+    fringe.push((start, []), 0)
 
+    while not fringe.isEmpty():
+        node = fringe.pop()
+        state = node[0]
+        actions = node[1]
+        
+       
+        if problem.isGoalState(state):
+            return actions
+        if state not in visited:
+            successors = problem.getSuccessors(state)
+            for child in successors:
+                # store state, action
+                child_state = child[0]
+                # print(child_state)
+                child_action = child[1]
+                if child_state not in visited:
+                    # add child nodes
+                    newCost = actions + [child_action]
+                    
+                    fringe.push((child_state, newCost),
+                                problem.getCostOfActions(newCost))
+            visited.append(state)
     util.raiseNotDefined()
 
 
-def nullHeuristic(state, problem=None):
+def nullHeuristic(state, problem: SearchProblem):
     """
     A heuristic function estimates the cost from the current state to the nearest
     goal in the provided SearchProblem.  This heuristic is trivial.
@@ -173,8 +203,29 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    # util.raiseNotDefined()
-   
+    start = problem.getStartState()
+    visited = []
+    fringe = util.PriorityQueue()
+    fringe.push((start, []), 0)
+
+    while not fringe.isEmpty():
+        node = fringe.pop()
+        state = node[0]
+        actions = node[1]
+        if problem.isGoalState(state):
+            return actions
+        if state not in visited:
+            successor = problem.getSuccessors(state)
+            for child in successor:
+                child_state = child[0]
+                child_action = child[1]
+                if child_state not in visited:
+                    child_action = actions + [child_action]
+                    fringe.push((child_state, child_action), problem.getCostOfActions(
+                        child_action) + heuristic(child_state, problem))
+            visited.append(state)
+
+    util.raiseNotDefined()
 
     
 
