@@ -369,10 +369,8 @@ class CornersProblem(search.SearchProblem):
             if not hitsWall:
                 nextState = (nextx, nexty)
                 successVisitedCorners = list(visitedCorners)
-                # if nextState in self.corners:
-                #     cornerstate = nextState
-                #     if cornerstate not in successVisitedCorners:
-                #         successVisitedCorners.append(cornerstate)
+                if nextState in self.corners and nextState not in successVisitedCorners:
+                    successVisitedCorners.append(nextState)
                 successors.append((
                     (nextState, successVisitedCorners), action, 1))
 
@@ -413,12 +411,67 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     walls = problem.walls
 
     "*** YOUR CODE HERE ***"
-    xy1 = state[0]
-    corners_pos = state[1]
-    minManhattanHeuristic = 0
-    for corner in corners_pos:
-        manhattanHeuristic(state[0], corner)
-    return 0  # Default to trivial solution
+    corners = problem.corners  # These are the corner coordinates
+    # These are the walls of the maze, as a Grid (game.py)
+    walls = problem.walls
+
+    heuristic = 0
+    prev_pos = state[0]
+
+    unvisited_corners = list(set(corners) - set(state[1]))
+
+    while unvisited_corners:
+        closest_corner = unvisited_corners[0]
+        closest_corner_distance = util.manhattanDistance(
+            prev_pos, closest_corner)
+
+        for corner in unvisited_corners[1:]:
+            distance = util.manhattanDistance(prev_pos, corner)
+
+            if distance < closest_corner_distance:
+                closest_corner_distance = distance
+                closest_corner = corner
+
+        heuristic += closest_corner_distance
+        unvisited_corners.remove(closest_corner)
+        prev_pos = closest_corner
+
+    return heuristic
+
+
+def calculate_mst_distance(start, corners):
+    # Create a set to track visited corners
+    visited = set()
+    visited.add(start)
+
+    # Create a dictionary to store the MST distances
+    distances = {corner: float('inf') for corner in corners}
+    distances[start] = 0
+
+    mst_distance = 0
+
+    while len(visited) < len(corners):
+        min_distance = float('inf')
+        min_corner = None
+
+        for corner in corners:
+            if corner not in visited and distances[corner] < min_distance:
+                min_distance = distances[corner]
+                min_corner = corner
+
+        if min_corner is None:
+            break
+
+        visited.add(min_corner)
+        mst_distance += min_distance
+
+        for corner in corners:
+            if corner not in visited:
+                distance = util.manhattanDistance(min_corner, corner)
+                if distance < distances[corner]:
+                    distances[corner] = distance
+
+    return mst_distance
 
 
 class AStarCornersAgent(SearchAgent):
@@ -522,7 +575,18 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+
+    start_position = problem.startingGameState
+    foodList = foodGrid.asList()
+    heuristic = 0
+    if len(foodList) == 0:
+        return 0
+    # Return maximum distance between current position and furthest food
+    for food in foodList:
+        distance = mazeDistance(position, food, start_position)
+        if (distance > heuristic):
+            heuristic = distance
+    return heuristic
 
 
 class ClosestDotSearchAgent(SearchAgent):
@@ -557,6 +621,8 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
+
+        return search.bfs(problem)
         util.raiseNotDefined()
 
 
@@ -594,6 +660,13 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x, y = state
 
         "*** YOUR CODE HERE ***"
+        # # Self food as a list of tuples
+        # dot = self.food.asList()
+        # # Check if the food is in the visted list
+        # if (x, y) in dot:
+        #     return True
+        # return False
+        return self.food[x][y]
         util.raiseNotDefined()
 
 
