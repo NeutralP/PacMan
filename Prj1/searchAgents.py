@@ -369,10 +369,8 @@ class CornersProblem(search.SearchProblem):
             if not hitsWall:
                 nextState = (nextx, nexty)
                 successVisitedCorners = list(visitedCorners)
-                # if nextState in self.corners:
-                #     cornerstate = nextState
-                #     if cornerstate not in successVisitedCorners:
-                #         successVisitedCorners.append(cornerstate)
+                if nextState in self.corners and nextState not in successVisitedCorners:
+                    successVisitedCorners.append(nextState)
                 successors.append((
                     (nextState, successVisitedCorners), action, 1))
 
@@ -414,45 +412,67 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
 
     "*** YOUR CODE HERE ***"
     corners = problem.corners  # These are the corner coordinates
-    walls = problem.walls  # These are the walls of the maze, as a Grid (game.py)
+    # These are the walls of the maze, as a Grid (game.py)
+    walls = problem.walls
 
-    node = state[0]
-    visitedCorners = state[1]
-    cornersToVisit = []
-    for corner in corners:
-        if corner not in visitedCorners:
-            cornersToVisit.append(corner)
+    heuristic = 0
+    prev_pos = state[0]
 
-    if len(cornersToVisit) == 0:
-        return 0
+    unvisited_corners = list(set(corners) - set(state[1]))
 
-    manhattan = []
-    for n in cornersToVisit:
-        manhattan.append(util.manhattanDistance(n, node))
+    while unvisited_corners:
+        closest_corner = unvisited_corners[0]
+        closest_corner_distance = util.manhattanDistance(
+            prev_pos, closest_corner)
 
-    return min(manhattan)
-    xy1 = state[0]
-    corners_pos = state[1]
-    minManhattanHeuristic = 0
-    for corner in corners_pos:
-        manhattanHeuristic(state[0], corner)
-    return 0  # Default to trivial solution
+        for corner in unvisited_corners[1:]:
+            distance = util.manhattanDistance(prev_pos, corner)
 
-    node = state[0]
-    visitedCorners = state[1]
-    cornersToVisit = []
-    for corner in corners:
-        if corner not in visitedCorners:
-            cornersToVisit.append(corner)
+            if distance < closest_corner_distance:
+                closest_corner_distance = distance
+                closest_corner = corner
 
-    if len(cornersToVisit) == 0:
-        return 0
+        heuristic += closest_corner_distance
+        unvisited_corners.remove(closest_corner)
+        prev_pos = closest_corner
 
-    manhattan = []
-    for n in cornersToVisit:
-        manhattan.append(util.manhattanDistance(n, node))
+    return heuristic
 
-    return min(manhattan)
+
+def calculate_mst_distance(start, corners):
+    # Create a set to track visited corners
+    visited = set()
+    visited.add(start)
+
+    # Create a dictionary to store the MST distances
+    distances = {corner: float('inf') for corner in corners}
+    distances[start] = 0
+
+    mst_distance = 0
+
+    while len(visited) < len(corners):
+        min_distance = float('inf')
+        min_corner = None
+
+        for corner in corners:
+            if corner not in visited and distances[corner] < min_distance:
+                min_distance = distances[corner]
+                min_corner = corner
+
+        if min_corner is None:
+            break
+
+        visited.add(min_corner)
+        mst_distance += min_distance
+
+        for corner in corners:
+            if corner not in visited:
+                distance = util.manhattanDistance(min_corner, corner)
+                if distance < distances[corner]:
+                    distances[corner] = distance
+
+    return mst_distance
+
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -556,73 +576,18 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
 
-    """
-    If the list is empty then we have reached the goal
-    """
-    if len(foodGrid.asList()) == 0:
+    start_position = problem.startingGameState
+    foodList = foodGrid.asList()
+    heuristic = 0
+    if len(foodList) == 0:
         return 0
-    
-    foodlist = foodGrid.asList()
+    # Return maximum distance between current position and furthest food
+    for food in foodList:
+        distance = mazeDistance(position, food, start_position)
+        if (distance > heuristic):
+            heuristic = distance
+    return heuristic
 
-    closepoint = foodlist[0]
-    close_cost = util.manhattanDistance(position, closepoint)
-
-    """
-    I calculate the closest dot with manhattan distance.
-    After that I take the true distance of this food
-    using the mazeDistance function.
-    Then I calculate an extra cost to add to the heuristic.
-    I add 1 extra cost to the heuristic if the food that is left
-    is not in the same line or column with pacman position and the
-    closest food position.
-    I don't add extra cost for those because I assume that they
-    are goinng to be eaten sooner than the others. 
-    """
-    for point in foodlist[1:]:
-        cost = util.manhattanDistance(position, point)
-        if cost < close_cost:
-            close_cost = cost
-            closepoint = point
-    
-    distance1 = mazeDistance(closepoint, position, problem.startingGameState)
-    foodleft = 0
-    for (x,y) in foodlist:
-        if x != position[0] and x != closepoint[0]:
-            foodleft += 1 
-        elif y != position[1] and y != closepoint[1]:
-            foodleft += 1
-
-    return distance1 + foodleft
-
-    closepoint = foodlist[0]
-    close_cost = util.manhattanDistance(position, closepoint)
-    return 0
-    """
-    I calculate the closest dot with manhattan distance.
-    After that I take the true distance of this food
-    using the mazeDistance function.
-    Then I calculate an extra cost to add to the heuristic.
-    I add 1 extra cost to the heuristic if the food that is left
-    is not in the same line or column with pacman position and the
-    closest food position.
-    I don't add extra cost for those because I assume that they
-    are goinng to be eaten sooner than the others. 
-    """
-    for point in foodlist[1:]:
-        cost = util.manhattanDistance(position, point)
-        if cost < close_cost:
-            close_cost = cost
-            closepoint = point
-    
-    distance1 = mazeDistance(closepoint, position, problem.startingGameState)
-    foodleft = 0
-    for (x,y) in foodlist:
-        if x != position[0] and x != closepoint[0]:
-            foodleft += 1 
-        elif y != position[1] and y != closepoint[1]:
-            foodleft += 1
-
-    return distance1 + foodleft
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -656,8 +621,11 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        return search.breadthFirstSearch(problem)
-       
+
+        return search.bfs(problem)
+        util.raiseNotDefined()
+
+
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
     A search problem for finding a path to any food.
@@ -692,7 +660,13 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x, y = state
 
         "*** YOUR CODE HERE ***"
-        return state in self.food.asList()
+        # # Self food as a list of tuples
+        # dot = self.food.asList()
+        # # Check if the food is in the visted list
+        # if (x, y) in dot:
+        #     return True
+        # return False
+        return self.food[x][y]
         util.raiseNotDefined()
 
 
