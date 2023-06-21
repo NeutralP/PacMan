@@ -99,7 +99,7 @@ def depthFirstSearch(problem: SearchProblem):
     visited = []
     # push initial state to fringe
     fringe.push((problem.getStartState(), [], 1))
-
+    
     while not fringe.isEmpty():
         node = fringe.pop()
         state = node[0]
@@ -171,8 +171,8 @@ def uniformCostSearch(problem: SearchProblem):
         node = fringe.pop()
         state = node[0]
         actions = node[1]
-        # print(actions)
-        # print(state)
+        
+       
         if problem.isGoalState(state):
             return actions
         if state not in visited:
@@ -185,6 +185,7 @@ def uniformCostSearch(problem: SearchProblem):
                 if child_state not in visited:
                     # add child nodes
                     newCost = actions + [child_action]
+                    
                     fringe.push((child_state, newCost),
                                 problem.getCostOfActions(newCost))
             visited.append(state)
@@ -226,6 +227,7 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
 
     util.raiseNotDefined()
 
+    
 
 # Abbreviations
 bfs = breadthFirstSearch
