@@ -19,6 +19,8 @@ import random, util
 from game import Agent
 from pacman import GameState
 
+
+BIGNUM = 1000000000
 class ReflexAgent(Agent):
     """
     A reflex agent chooses an action at each choice point by examining
@@ -334,53 +336,40 @@ def betterEvaluationFunction(currentGameState: GameState):
     distance to nearest scared ghost, number of remaining food pellets,
     and the current score to calculate the evaluation score.
     """
-    # Get Pacman's current position
-    pacmanPos = currentGameState.getPacmanPosition()
+    if currentGameState.isWin():
+        return BIGNUM
+    elif currentGameState.isLose():
+        return -BIGNUM
+    pos = currentGameState.getPacmanPosition()
+    food = currentGameState.getFood()
+    walls = currentGameState.getWalls()
+    dmap = walls.copy()
+    stk = util.Queue()
+    stk.push(pos)
+    dmap[pos[0]][pos[1]] = 0
+    dis = 0
+    while not stk.isEmpty():  # use BFS to aim at the closest food if not disturbed
+        x , y = stk.pop()
+        dis = dmap[x][y] + 1
+        if food[x][y]:
+            break
+        for v in [(0, 1) , (1, 0) , (0 , -1) , (-1 , 0)]:
+            xn = x + v[0]
+            yn = y + v[1]
+            if dmap[xn][yn] == False:
+                dmap[xn][yn] = dis
+                stk.push((xn, yn))
+    ret = 1 - dis
+    ghosts = currentGameState.getGhostStates()
+    for ghost in ghosts:
+        if ghost.scaredTimer == 0:  # active ghost poses danger to the pacman
+            ret -= 100 ** (1.6 - manhattanDistance(ghost.getPosition(), pos))
+        else:  # bonus points for having a scared ghost 
+            ret += 25
+    ret -= 30 * food.count()  # bonus points for eating a food 
+    return ret
+        
 
-    # Get the current state of the game
-    currentScore = currentGameState.getScore()
-    currentFood = currentGameState.getFood()
-    currentCapsules = currentGameState.getCapsules()
-    currentGhostStates = currentGameState.getGhostStates()
-
-    # Calculate the distances to all ghosts
-    ghostDistances = [manhattanDistance(pacmanPos, ghost.getPosition()) for ghost in currentGhostStates]
-    nearestGhostDistance = min(ghostDistances)
-
-    scaredGhostDistances = [manhattanDistance(pacmanPos, ghost.getPosition()) for ghost in currentGhostStates if ghost.scaredTimer > 0]
-    
-    if scaredGhostDistances:
-        nearestScaredGhostDistance = min(scaredGhostDistances)
-    else:
-        nearestScaredGhostDistance = 0  # Set a default value when no scared ghosts are present
-
-    # Calculate the number of remaining food pellets
-    remainingFood = currentFood.asList()
-    remainingFoodCount = len(remainingFood)
-
-    # Calculate the minimum distance to a food pellet
-    foodDistances = [manhattanDistance(pacmanPos, food) for food in remainingFood]
-    if foodDistances:
-        minFoodDistance = min(foodDistances)
-    else:
-        minFoodDistance = 0  # Set a default value when no food pellets are present
-
-    # Calculate the evaluation score
-    evaluationScore = currentScore
-
-    # Adjust the evaluation score based on the distance to the nearest ghost
-    evaluationScore -= nearestGhostDistance  * 10
-
-    # Adjust the evaluation score based on the distance to the nearest scared ghost
-    evaluationScore += nearestScaredGhostDistance
-
-    # Adjust the evaluation score based on the number of remaining food pellets
-    evaluationScore += remainingFoodCount
-
-    # Adjust the evaluation score based on the minimum distance to a food pellet
-    evaluationScore -= minFoodDistance * 5
-
-    return evaluationScore
 
 # Abbreviation
 better = betterEvaluationFunction
