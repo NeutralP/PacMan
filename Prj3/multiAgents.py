@@ -336,9 +336,9 @@ def betterEvaluationFunction(currentGameState: GameState):
     distance to nearest scared ghost, number of remaining food pellets,
     and the current score to calculate the evaluation score.
     """
-    if currentGameState.isWin():
-        return BIGNUM
-    elif currentGameState.isLose():
+    # if currentGameState.isWin():
+    #     return 1000
+    if currentGameState.isLose():
         return -BIGNUM
     pos = currentGameState.getPacmanPosition()
     food = currentGameState.getFood()
@@ -367,6 +367,7 @@ def betterEvaluationFunction(currentGameState: GameState):
         else:  # bonus points for having a scared ghost 
             ret += 25
     ret -= 30 * food.count()  # bonus points for eating a food 
+    print(ret)
     return ret
         
 
