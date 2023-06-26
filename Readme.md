@@ -23,19 +23,15 @@ Nhiệm vụ của trò chơi: điều khiển pacman ăn hết food (chấm tr�
 # in multiagents.py
 class MinimaxAgent(MultiAgentSearchAgent):
 
-    def getAction(self, gameState: GameState):
-    
-        return self.maximize(gameState, 0, 0)[1]
+    def getAction(self, gameState: GameState):\
 
-    def minimax(self ,state : GameState, agent_index, depth):
-        
-    def maximize(self, state : GameState, agent_index, depth):
+        def value(state,  agentIndex, depth):
 
-    def minimize(self, state : GameState, agent_index, depth):
+        def max_value(state, agentIndex, depth):
+            
+        def min_value(state, agentIndex, depth):
 
-    def max_eval(self, evaluation1, evaluation2):
-        
-    def min_eval(self, evaluation1, evaluation2):
+        return value(gameState, 0, 0)
        
 ```
 
@@ -46,27 +42,16 @@ triển khai thuật toán Minimax cho Pacman. Dưới đây là phân tích t�
 Phương thức này trả về hành động tối ưu dựa trên trạng thái hiện tại gameState, sử dụng độ sâu self.depth và hàm đánh giá self.evaluationFunction.
 Phương thức gọi hàm maximize và trả về hành động tốt nhất.
 
-**Phương thức minimax(self, state: GameState, agent_index, depth):**
+**Phương thức max_value(state, agentIndex, depth):**
 
-Phương thức này thực hiện thuật toán Minimax cho một trạng thái cụ thể.
+Phương thức này tìm kiếm các trạng thái con và trả về giá trị cao nhất
 Nếu đạt đến độ sâu tìm kiếm (depth == self.depth) hoặc trạng thái là trạng thái thắng (state.isWin()) hoặc trạng thái là trạng thái thua (state.isLose()), thì phương thức trả về giá trị đánh giá của trạng thái đó.
 Nếu đến lượt Pacman (agent_index == 0), phương thức gọi maximize.
 Ngược lại, phương thức gọi minimize.
 
+**Phương thức min_value(state, agentIndex, depth):**
 
-**Phương thức maximize(self, state: GameState, agent_index, depth):**
-
-Phương thức này thực hiện lượt chơi MAX trong thuật toán Minimax.
-Ban đầu, giá trị lớn nhất (maxValue) được khởi tạo là âm vô cùng.
-Dùng vòng lặp để duyệt qua các hành động hợp lệ của Pacman (legal_moves).
-Với mỗi hành động, tạo ra trạng thái kế tiếp bằng cách sử dụng state.generateSuccessor(agent_index, action) và gọi đệ quy minimax với lượt chơi của các con ma tiếp theo (agent_index + 1) và tăng độ sâu depth.
-So sánh giá trị đánh giá của trạng thái kế tiếp với maxValue bằng cách gọi max_eval và cập nhật maxValue nếu cần.
-Trả về giá trị tối đa (maxValue).
-
-
-**Phương thức minimize(self, state: GameState, agent_index, depth):**
-
-Phương thức này thực hiện lượt chơi MIN trong thuật toán Minimax.
+Phương thức này thực hiện lượt chơi MIN trong thuật toán Minimax, sẽ tìm kiếm các trạng thái con và trả về giá trị thấp nhất. (Lượt chơi của ghost)
 Ban đầu, giá trị nhỏ nhất (minValue) được khởi tạo là dương vô cùng.
 Dùng vòng lặp để duyệt qua các hành động hợp lệ của con ma hiện tại (legal_moves).
 
@@ -80,14 +65,12 @@ Dùng vòng lặp để duyệt qua các hành động hợp lệ của con ma h
 class ExpectimaxAgent(MultiAgentSearchAgent):
 
     def getAction(self, gameState: GameState):
-    
-    def expectimax(self ,state : GameState, agent_index, depth):
+
+        def value(state, agentIndex, depth):
         
-    def maximize(self, state : GameState, agent_index, depth):
-        
-    def chance(self, state : GameState, agent_index, depth):
-        
-    def max_eval(self, evaluation1, evaluation2):
+        def max_value(state, agentIndex, depth):
+            
+        def exp_value(state, agentIndex, depth):
 
 def betterEvaluationFunction(currentGameState: GameState):       
 ```
