@@ -1,7 +1,7 @@
 Run pacman by exceptiMax algorithm:
-    python pacman.py -p ExpectimaxAgent -l minimaxClassic -a depth=3 -n X
+    python pacman.py -p ExpectimaxAgent -a depth=2 -n X
 
 Run pacman by MiniMax algorithm with AlphaBeta: 
-    python pacman.py -p Minimax -l minimaxClassic -a depth=3 -n X
+    python pacman.py -p MinimaxAgent -a depth=3 -n X
 
 Replace X by the number of game you want to run.
